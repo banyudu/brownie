@@ -1,9 +1,11 @@
-import { useState, useEffect, useSyncExternalStore, useMemo } from "react"
-import type { NetworkRequest } from "~/types/network"
-import SearchBar from "~/components/SearchBar"
-import RequestList from "~/components/RequestList"
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react"
 import { createRoot } from "react-dom/client"
+
+import RequestList from "~/components/RequestList"
+import SearchBar from "~/components/SearchBar"
+import type { NetworkRequest } from "~/types/network"
 import { getRequests } from "~/utils/storage"
+
 import "~/style.css"
 
 // Store for managing requests state with useSyncExternalStore
@@ -15,33 +17,26 @@ let listeners = new Set<() => void>()
 async function fetchTabId(): Promise<number> {
   try {
     const response = await chrome.runtime.sendMessage({ type: "GET_TAB_ID" })
-    const tabId = response?.tabId ?? 0
-    console.log("[Brownie Panel] Fetched tab ID:", tabId, "Response:", response)
-    return tabId
-  } catch (error) {
-    console.error("[Brownie Panel] Error getting tab ID:", error)
+    return response?.tabId ?? 0
+  } catch {
     // Fallback: try to get tab ID from devtools API if available
-    try {
-      if (typeof chrome !== "undefined" && chrome.devtools?.inspectedWindow?.tabId) {
-        const fallbackTabId = chrome.devtools.inspectedWindow.tabId
-        console.log("[Brownie Panel] Using fallback tab ID:", fallbackTabId)
-        return fallbackTabId
-      }
-    } catch (e) {
-      console.error("[Brownie Panel] Fallback tab ID also failed:", e)
+    if (
+      typeof chrome !== "undefined" &&
+      chrome.devtools?.inspectedWindow?.tabId
+    ) {
+      return chrome.devtools.inspectedWindow.tabId
     }
     return 0
   }
 }
 
 // Load requests from storage
-async function loadRequestsFromStorage(tabId: number): Promise<NetworkRequest[]> {
+async function loadRequestsFromStorage(
+  tabId: number
+): Promise<NetworkRequest[]> {
   try {
-    const requests = await getRequests(tabId)
-    console.log(`[Brownie Panel] Loaded ${requests.length} requests for tab ${tabId}`)
-    return requests
-  } catch (error) {
-    console.error("[Brownie Panel] Error loading requests:", error)
+    return await getRequests(tabId)
+  } catch {
     return []
   }
 }
@@ -59,10 +54,7 @@ function subscribe(callback: () => void) {
       // Check if the update is for our current tab
       const updateKey = `brownie_update_${currentTabId}`
       if (changes[updateKey]) {
-        console.log(`[Brownie Panel] Storage change detected for tab ${currentTabId}`)
-        // Reload requests for this tab
         loadRequestsFromStorage(currentTabId).then((requests) => {
-          console.log(`[Brownie Panel] Reloaded ${requests.length} requests after storage change`)
           currentRequests = requests
           listeners.forEach((listener) => listener())
         })
@@ -70,7 +62,6 @@ function subscribe(callback: () => void) {
       // Also check for direct request key changes (backup)
       const requestsKey = `brownie_requests_${currentTabId}`
       if (changes[requestsKey]) {
-        console.log(`[Brownie Panel] Direct requests key change detected for tab ${currentTabId}`)
         loadRequestsFromStorage(currentTabId).then((requests) => {
           currentRequests = requests
           listeners.forEach((listener) => listener())
@@ -87,9 +78,9 @@ function subscribe(callback: () => void) {
     if (currentTabId !== null) {
       pollCount++
       loadRequestsFromStorage(currentTabId).then((requests) => {
-        const requestsChanged = JSON.stringify(requests) !== JSON.stringify(currentRequests)
+        const requestsChanged =
+          JSON.stringify(requests) !== JSON.stringify(currentRequests)
         if (requestsChanged) {
-          console.log(`[Brownie Panel] Poll #${pollCount} detected ${requests.length} requests (was ${currentRequests.length})`)
           currentRequests = requests
           listeners.forEach((listener) => listener())
         }
@@ -120,38 +111,22 @@ function DevToolsPanel() {
 
   // Initialize tab ID
   useEffect(() => {
-    fetchTabId().then((id) => {
-      console.log("[Brownie Panel] Setting tab ID:", id)
-      currentTabId = id
-      setTabId(id)
-      // Load initial requests
-      loadRequestsFromStorage(id).then((requests) => {
-        console.log("[Brownie Panel] Initial requests loaded:", requests.length)
-        currentRequests = requests
-        listeners.forEach((listener) => listener())
-        
-        // If no requests found, try to check if there are any requests in storage at all
-        if (requests.length === 0) {
-          console.log("[Brownie Panel] No requests found, checking if IndexedDB is accessible...")
-          // Try to verify IndexedDB is working by checking all keys
-          import("idb-keyval").then(({ keys }) => {
-            keys().then((allKeys) => {
-              console.log("[Brownie Panel] IndexedDB keys found:", allKeys)
-              const requestKeys = allKeys.filter((k) => 
-                typeof k === "string" && k.startsWith("brownie_requests_")
-              )
-              console.log("[Brownie Panel] Request keys in storage:", requestKeys)
-            }).catch((err) => {
-              console.error("[Brownie Panel] Error checking IndexedDB keys:", err)
-            })
+    fetchTabId()
+      .then((id) => {
+        currentTabId = id
+        setTabId(id)
+        loadRequestsFromStorage(id)
+          .then((requests) => {
+            currentRequests = requests
+            listeners.forEach((listener) => listener())
           })
-        }
-      }).catch((error) => {
-        console.error("[Brownie Panel] Error loading initial requests:", error)
+          .catch(() => {
+            // Error loading requests
+          })
       })
-    }).catch((error) => {
-      console.error("[Brownie Panel] Error fetching tab ID:", error)
-    })
+      .catch(() => {
+        // Error fetching tab ID
+      })
   }, [])
 
   // Use useSyncExternalStore to sync with storage
@@ -164,9 +139,7 @@ function DevToolsPanel() {
   // Force refresh when tab ID changes
   useEffect(() => {
     if (tabId !== null) {
-      console.log("[Brownie Panel] Tab ID changed, refreshing requests...")
       loadRequestsFromStorage(tabId).then((requests) => {
-        console.log(`[Brownie Panel] Refreshed ${requests.length} requests for tab ${tabId}`)
         currentRequests = requests
         listeners.forEach((listener) => listener())
       })
@@ -194,7 +167,9 @@ function DevToolsPanel() {
       // Search in parsed JSON
       if (request.responseBodyParsed) {
         try {
-          const jsonString = JSON.stringify(request.responseBodyParsed).toLowerCase()
+          const jsonString = JSON.stringify(
+            request.responseBodyParsed
+          ).toLowerCase()
           if (jsonString.includes(keyword)) {
             return true
           }
@@ -217,15 +192,11 @@ function DevToolsPanel() {
 
   const handleClearRequests = async () => {
     if (tabId === null) return
-    
-    try {
-      await chrome.runtime.sendMessage({ type: "CLEAR_REQUESTS" })
-      // Clear local state immediately
-      currentRequests = []
-      listeners.forEach((listener) => listener())
-    } catch (error) {
-      console.error("Error clearing requests:", error)
-    }
+
+    await chrome.runtime.sendMessage({ type: "CLEAR_REQUESTS" })
+    // Clear local state immediately
+    currentRequests = []
+    listeners.forEach((listener) => listener())
   }
 
   return (
@@ -241,8 +212,7 @@ function DevToolsPanel() {
           </span>
           <button
             onClick={handleClearRequests}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
             Clear
           </button>
         </div>
@@ -253,7 +223,10 @@ function DevToolsPanel() {
 
       {/* Request List */}
       <div className="flex-1 overflow-auto">
-        <RequestList requests={filteredRequests} searchKeyword={searchKeyword} />
+        <RequestList
+          requests={filteredRequests}
+          searchKeyword={searchKeyword}
+        />
       </div>
     </div>
   )

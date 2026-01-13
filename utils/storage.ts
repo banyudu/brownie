@@ -1,4 +1,5 @@
-import { get, set, del, clear, keys } from "idb-keyval"
+import { clear, del, get, keys, set } from "idb-keyval"
+
 import type { NetworkRequest } from "~/types/network"
 
 const DB_PREFIX = "brownie_"
@@ -19,17 +20,14 @@ export interface TabInfo {
  */
 export function getCurrentTabId(): number | null {
   try {
-    // In devtools context, we can access tabId directly
-    if (typeof chrome !== "undefined" && chrome.devtools?.inspectedWindow?.tabId) {
-      const tabId = chrome.devtools.inspectedWindow.tabId
-      console.log("[Brownie Storage] Got tab ID from devtools:", tabId)
-      return tabId
+    if (
+      typeof chrome !== "undefined" &&
+      chrome.devtools?.inspectedWindow?.tabId
+    ) {
+      return chrome.devtools.inspectedWindow.tabId
     }
-    // Fallback: use 0 as default tab ID
-    console.warn("[Brownie Storage] Tab ID not available, using 0 as fallback")
     return 0
-  } catch (error) {
-    console.error("[Brownie Storage] Error getting tab ID:", error)
+  } catch {
     return 0
   }
 }
@@ -41,8 +39,7 @@ export async function getTabs(): Promise<TabInfo[]> {
   try {
     const tabs = await get<TabInfo[]>(TABS_KEY)
     return tabs || []
-  } catch (error) {
-    console.error("Error getting tabs:", error)
+  } catch {
     return []
   }
 }
@@ -50,16 +47,20 @@ export async function getTabs(): Promise<TabInfo[]> {
 /**
  * Update or add a tab
  */
-export async function updateTab(tabId: number, url: string, title: string): Promise<void> {
+export async function updateTab(
+  tabId: number,
+  url: string,
+  title: string
+): Promise<void> {
   try {
     const tabs = await getTabs()
     const existingTabIndex = tabs.findIndex((t) => t.tabId === tabId)
-    
+
     const tabInfo: TabInfo = {
       tabId,
       url,
       title,
-      lastActive: Date.now(),
+      lastActive: Date.now()
     }
 
     if (existingTabIndex >= 0) {
@@ -69,8 +70,8 @@ export async function updateTab(tabId: number, url: string, title: string): Prom
     }
 
     await set(TABS_KEY, tabs)
-  } catch (error) {
-    console.error("Error updating tab:", error)
+  } catch {
+    // Error updating tab
   }
 }
 
@@ -86,8 +87,8 @@ export async function removeTab(tabId: number): Promise<void> {
 
     // Remove tab's requests
     await del(REQUESTS_KEY(tabId))
-  } catch (error) {
-    console.error("Error removing tab:", error)
+  } catch {
+    // Error removing tab
   }
 }
 
@@ -105,8 +106,8 @@ export async function cleanupOldTabs(): Promise<void> {
         await removeTab(tab.tabId)
       }
     }
-  } catch (error) {
-    console.error("Error cleaning up old tabs:", error)
+  } catch {
+    // Error cleaning up old tabs
   }
 }
 
@@ -117,11 +118,8 @@ export async function getRequests(tabId: number): Promise<NetworkRequest[]> {
   try {
     const key = REQUESTS_KEY(tabId)
     const requests = await get<NetworkRequest[]>(key)
-    const result = requests || []
-    console.log(`[Brownie Storage] getRequests for tab ${tabId} (key: ${key}): ${result.length} requests`)
-    return result
-  } catch (error) {
-    console.error(`[Brownie Storage] Error getting requests for tab ${tabId}:`, error)
+    return requests || []
+  } catch {
     return []
   }
 }
@@ -129,10 +127,13 @@ export async function getRequests(tabId: number): Promise<NetworkRequest[]> {
 /**
  * Add a request to a tab's storage
  */
-export async function addRequest(tabId: number, request: NetworkRequest): Promise<void> {
+export async function addRequest(
+  tabId: number,
+  request: NetworkRequest
+): Promise<void> {
   try {
     const requests = await getRequests(tabId)
-    
+
     // Prepend to keep most recent first
     requests.unshift(request)
 
@@ -143,9 +144,8 @@ export async function addRequest(tabId: number, request: NetworkRequest): Promis
 
     const key = REQUESTS_KEY(tabId)
     await set(key, requests)
-    console.log(`[Brownie Storage] addRequest: Added request to tab ${tabId} (key: ${key}), total: ${requests.length}`)
-  } catch (error) {
-    console.error(`[Brownie Storage] Error adding request to tab ${tabId}:`, error)
+  } catch {
+    // Error adding request
   }
 }
 
@@ -155,8 +155,8 @@ export async function addRequest(tabId: number, request: NetworkRequest): Promis
 export async function clearRequests(tabId: number): Promise<void> {
   try {
     await set(REQUESTS_KEY(tabId), [])
-  } catch (error) {
-    console.error("Error clearing requests:", error)
+  } catch {
+    // Error clearing requests
   }
 }
 
@@ -174,8 +174,7 @@ export async function getAllRequests(): Promise<NetworkRequest[]> {
     }
 
     return allRequests.sort((a, b) => b.timestamp - a.timestamp)
-  } catch (error) {
-    console.error("Error getting all requests:", error)
+  } catch {
     return []
   }
 }

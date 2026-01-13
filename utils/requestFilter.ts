@@ -3,19 +3,34 @@ import type { NetworkRequest } from "~/types/network"
 /**
  * Check if a request is an XHR/fetch request (not a static asset)
  */
-export function isXHRRequest(request: chrome.devtools.network.Request): boolean {
+export function isXHRRequest(
+  request: chrome.devtools.network.Request
+): boolean {
   const url = request.request.url.toLowerCase()
-  const contentType = request.response?.headers?.find(
-    (h) => h.name.toLowerCase() === "content-type"
-  )?.value?.toLowerCase() || ""
+  const contentType =
+    request.response?.headers
+      ?.find((h) => h.name.toLowerCase() === "content-type")
+      ?.value?.toLowerCase() || ""
 
   // Exclude static assets
   const staticExtensions = [
-    ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp", ".ico", // Images
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".svg",
+    ".webp",
+    ".ico", // Images
     ".css", // Stylesheets
-    ".woff", ".woff2", ".ttf", ".eot", // Fonts
-    ".mp4", ".webm", ".mp3", ".wav", // Media
-    ".pdf", // Documents
+    ".woff",
+    ".woff2",
+    ".ttf",
+    ".eot", // Fonts
+    ".mp4",
+    ".webm",
+    ".mp3",
+    ".wav", // Media
+    ".pdf" // Documents
   ]
 
   // Check if URL ends with static extension
@@ -30,7 +45,7 @@ export function isXHRRequest(request: chrome.devtools.network.Request): boolean 
     "text/xml",
     "text/html",
     "application/javascript",
-    "text/plain",
+    "text/plain"
   ]
 
   if (apiContentTypes.some((type) => contentType.includes(type))) {
@@ -38,15 +53,22 @@ export function isXHRRequest(request: chrome.devtools.network.Request): boolean 
   }
 
   // Include if it's a fetch/XHR pattern (no extension or common API patterns)
-  if (!url.includes(".") || url.includes("/api/") || url.includes("/v1/") || url.includes("/v2/")) {
+  if (
+    !url.includes(".") ||
+    url.includes("/api/") ||
+    url.includes("/v1/") ||
+    url.includes("/v2/")
+  ) {
     return true
   }
 
   // Default: include if it's not clearly a static asset
-  return !contentType.includes("image/") && 
-         !contentType.includes("font/") && 
-         !contentType.includes("video/") && 
-         !contentType.includes("audio/")
+  return (
+    !contentType.includes("image/") &&
+    !contentType.includes("font/") &&
+    !contentType.includes("video/") &&
+    !contentType.includes("audio/")
+  )
 }
 
 /**
@@ -67,9 +89,17 @@ export async function convertToNetworkRequest(
     let contentType = ""
 
     try {
-      const content = await request.getContent()
-      responseBody = content || ""
-      
+      const content = await new Promise<string>((resolve, reject) => {
+        request.getContent((content, encoding) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message))
+          } else {
+            resolve(content || "")
+          }
+        })
+      })
+      responseBody = content
+
       const contentTypeHeader = response.headers.find(
         (h) => h.name.toLowerCase() === "content-type"
       )
@@ -111,11 +141,9 @@ export async function convertToNetworkRequest(
       responseBodyParsed,
       contentType,
       timestamp: Date.now(),
-      duration: response.headersSize + response.bodySize,
+      duration: response.headersSize + response.bodySize
     }
-  } catch (error) {
-    console.error("Error converting request:", error)
+  } catch {
     return null
   }
 }
-

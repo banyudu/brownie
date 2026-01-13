@@ -35,7 +35,9 @@
     ],
     "permissions": [
       "storage",
-      "devtools"
+      "devtools",
+      "tabs",
+      "activeTab"
     ],
     "devtools_page": "devtools.html"
   }
