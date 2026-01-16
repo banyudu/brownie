@@ -31,7 +31,8 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "https://arxiv.org/*",
+      "https://www.alphaxiv.org/*"
     ],
     "permissions": [
       "storage",
