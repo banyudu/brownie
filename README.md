@@ -31,3 +31,14 @@ This should create a production bundle for your extension, ready to be zipped an
 ## Submit to the webstores
 
 The easiest way to deploy your Plasmo extension is to use the built-in [bpp](https://bpp.browser.market) GitHub action. Prior to using this action however, make sure to build your extension and upload the first version to the store to establish the basic credentials. Then, simply follow [this setup instruction](https://docs.plasmo.com/framework/workflows/submit) and you should be on your way for automated submission!
+
+## GitHub Pages
+
+The extension's privacy policy is hosted on GitHub Pages. After pushing to the main/master branch, the GitHub Actions workflow will automatically deploy the `pages/` directory to GitHub Pages.
+
+To enable GitHub Pages:
+1. Go to your repository settings
+2. Navigate to "Pages" in the left sidebar
+3. Under "Source", select "GitHub Actions"
+
+The privacy policy will be available at: `https://[your-username].github.io/[repository-name]/privacy.html`
