@@ -22,7 +22,11 @@ function formatFilename(paperId: string, title: string): string {
     .replace(/\s+/g, " ") // Normalize whitespace
     .trim()
 
-  return `[${paperId}] ${cleanTitle}.pdf`
+  const basename = cleanTitle.includes(paperId)
+    ? cleanTitle
+    : `[${paperId}] ${cleanTitle}`
+
+  return `${basename}.pdf`
 }
 
 function download(
