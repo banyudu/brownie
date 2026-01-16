@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - Brownie Extension</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        color: #333;
+        background-color: #fff;
+      }
+      h1 {
+        color: #1a73e8;
+        border-bottom: 2px solid #1a73e8;
+        padding-bottom: 10px;
+      }
+      h2 {
+        color: #5f6368;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #80868b;
+        margin-top: 20px;
+      }
+      p,
+      li {
+        margin-bottom: 10px;
+      }
+      ul {
+        margin-left: 20px;
+      }
+      .last-updated {
+        color: #80868b;
+        font-style: italic;
+        margin-bottom: 30px;
+      }
+      .contact-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Privacy Policy for Brownie Extension</h1>
+    <p class="last-updated">Last Updated: <span id="date"></span></p>
+
+    <h2>1. Introduction</h2>
+    <p>
+      This Privacy Policy describes how the Brownie browser extension ("we",
+      "our", or "the extension") handles information when you use our extension.
+      We are committed to protecting your privacy and being transparent about
+      our data practices.
+    </p>
+
+    <h2>2. Information We Collect</h2>
+    <p>
+      The Brownie extension is designed with privacy in mind. We collect minimal
+      information necessary for the extension to function:
+    </p>
+
+    <h3>2.1 Local Storage Data</h3>
+    <p>
+      The extension stores the following data locally on your device using
+      IndexedDB:
+    </p>
+    <ul>
+      <li>
+        <strong>Network Request Data:</strong> When using the DevTools panel
+        feature, the extension stores network request information including
+        URLs, HTTP methods, request/response headers, status codes, and response
+        bodies. This data is only collected when you have Chrome DevTools open
+        and is used solely for displaying network requests in the DevTools
+        panel.
+      </li>
+      <li>
+        <strong>Tab Information:</strong> For the DevTools panel, the extension
+        stores basic tab information (URL and title) to associate network
+        requests with specific tabs. This information is used only for
+        organizing network requests in the DevTools interface.
+      </li>
+    </ul>
+
+    <h3>2.2 Tab Information (Temporary Access)</h3>
+    <p>
+      When you click the extension icon on an arXiv page, the extension
+      temporarily accesses:
+    </p>
+    <ul>
+      <li>The current tab's URL (to identify arXiv paper pages)</li>
+      <li>The current tab's title (to generate appropriate PDF filenames)</li>
+    </ul>
+    <p>
+      This information is accessed only when you explicitly click the extension
+      icon and is used immediately to construct the PDF download URL. It is not
+      stored, logged, or transmitted anywhere.
+    </p>
+
+    <h2>3. How We Use Information</h2>
+    <p>The extension uses collected information for the following purposes:</p>
+    <ul>
+      <li>
+        <strong>PDF Downloads:</strong> To download PDF files from arXiv.org and
+        alphaxiv.org with properly formatted filenames based on paper titles.
+      </li>
+      <li>
+        <strong>DevTools Panel:</strong> To display network request information
+        in the custom DevTools panel for debugging and development purposes.
+      </li>
+    </ul>
+
+    <h2>4. Data Storage and Retention</h2>
+    <p>
+      All data collected by the extension is stored exclusively on your device
+      using the browser's IndexedDB storage system. We do not transmit, upload,
+      or sync any data to external servers.
+    </p>
+    <ul>
+      <li>
+        <strong>Network Request Data:</strong> Stored locally and automatically
+        cleaned up after 24 hours of inactivity. You can manually clear this
+        data at any time through the DevTools panel interface.
+      </li>
+      <li>
+        <strong>Tab Information:</strong> Stored locally and automatically
+        cleaned up when tabs are closed or after 24 hours of inactivity.
+      </li>
+    </ul>
+
+    <h2>5. Data Sharing and Third Parties</h2>
+    <p>
+      <strong
+        >We do not share, sell, or transmit any data to third parties.</strong
+      >
+      All data remains on your device and is never sent to external servers,
+      analytics services, or any other third-party services.
+    </p>
+    <p>
+      The extension only accesses external websites (arXiv.org and alphaxiv.org)
+      to download PDF files when you explicitly initiate a download. These
+      downloads are performed directly in your browser, and no information about
+      your downloads is transmitted to us or any third party.
+    </p>
+
+    <h2>6. Permissions Explanation</h2>
+    <p>The extension requests the following permissions:</p>
+    <ul>
+      <li>
+        <strong>Host Permissions (https://*/*):</strong> Required to download
+        PDF files from arXiv.org and alphaxiv.org. The extension only accesses
+        these specific domains when you initiate a download.
+      </li>
+      <li>
+        <strong>Storage:</strong> Required to store network request data locally
+        for the DevTools panel feature.
+      </li>
+      <li>
+        <strong>DevTools:</strong> Required to create a custom DevTools panel
+        for network request monitoring.
+      </li>
+      <li>
+        <strong>Tabs:</strong> Required to read the current tab's URL and title
+        when you click the extension icon to download PDFs.
+      </li>
+      <li>
+        <strong>ActiveTab:</strong> Required to communicate with the content
+        script in the active tab to initiate PDF downloads.
+      </li>
+    </ul>
+
+    <h2>7. Your Rights and Control</h2>
+    <p>You have full control over your data:</p>
+    <ul>
+      <li>
+        You can clear all stored network request data at any time through the
+        DevTools panel interface.
+      </li>
+      <li>
+        You can uninstall the extension at any time, which will remove all
+        locally stored data.
+      </li>
+      <li>
+        You can disable the extension without uninstalling it, which will
+        prevent any data collection.
+      </li>
+    </ul>
+
+    <h2>8. Security</h2>
+    <p>
+      We take data security seriously. All data is stored locally on your device
+      using the browser's built-in secure storage mechanisms. We do not transmit
+      any data over the network, which eliminates the risk of data interception
+      or unauthorized access during transmission.
+    </p>
+
+    <h2>9. Children's Privacy</h2>
+    <p>
+      The extension is not intended for use by children under the age of 13. We
+      do not knowingly collect personal information from children under 13. If
+      you are a parent or guardian and believe your child has provided us with
+      personal information, please contact us so we can delete such information.
+    </p>
+
+    <h2>10. Changes to This Privacy Policy</h2>
+    <p>
+      We may update this Privacy Policy from time to time. We will notify you of
+      any changes by updating the "Last Updated" date at the top of this page.
+      We encourage you to review this Privacy Policy periodically to stay
+      informed about how we protect your information.
+    </p>
+
+    <h2>11. Contact Information</h2>
+    <div class="contact-info">
+      <p>
+        If you have any questions or concerns about this Privacy Policy or our
+        data practices, please contact us at:
+      </p>
+      <p>
+        <strong>Email:</strong> banyudu@gmail.com<br />
+        <strong>Extension Developer:</strong> Yudu Ban
+      </p>
+    </div>
+
+    <h2>12. Compliance</h2>
+    <p>
+      This extension is designed to comply with applicable privacy laws and
+      regulations, including but not limited to the General Data Protection
+      Regulation (GDPR) and the California Consumer Privacy Act (CCPA). Since we
+      do not collect, process, or transmit personal data to external servers,
+      the extension operates with minimal privacy impact.
+    </p>
+
+    <script>
+      // Set the current date
+      document.getElementById("date").textContent =
+        new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        })
+    </script>
+  </body>
+</html>
